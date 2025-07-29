@@ -54,8 +54,8 @@ func NewConfig() (*Config, error) {
 
 func (c *Config) GetExludeMap(fullFiles []string) map[string]bool {
 	resp := make(map[string]bool)
-	
-	for _, path := range fullFiles{
+
+	for _, path := range fullFiles {
 		resp[path] = true
 	}
 

@@ -19,6 +19,12 @@ type (
 		Dir   string `yaml:"dir"`
 	}
 
+	Defence struct {
+		Use                 bool     `yaml:"use"`
+		MaxRequestFromOneIP uint     `yaml:"max_request_from_ip"`
+		BlackList           []string `yaml:"black_list"`
+	}
+
 	Config struct {
 		ServiceName     string          `yaml:"service_name"`
 		DDoSDef         bool            `yaml:"ddos_def"`

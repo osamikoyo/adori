@@ -25,11 +25,18 @@ type (
 		BlackList           []string `yaml:"black_list"`
 	}
 
+	Static struct {
+		StatisServer bool     `yaml:"static_server"`
+		Dir          string   `yaml:"dir"`
+		Prefix       string   `yaml:"prefix"`
+		ExcludeFiles []string `yaml:"exclude_files"`
+	}
+
 	Config struct {
 		ServiceName     string          `yaml:"service_name"`
-		DDoSDef         bool            `yaml:"ddos_def"`
-		Commress        bool            `yaml:"compress"`
-		ExcludeFiles    []string        `yaml:"exclude_files"`
+		Addr            string          `yaml:"addr"`
+		Regime          string          `yaml:"regime"`
+		Static          Static          `yaml:"static"`
 		StatisticConfig StatisticConfig `yaml:"statistic"`
 		ApiGateway      []ProxyElement  `yaml:"api_gateway"`
 	}
@@ -55,6 +62,10 @@ func NewConfig() (*Config, error) {
 		return nil, err
 	}
 
+	if len(cfg.ApiGateway) == 0 {
+		cfg.ApiGateway = nil
+	}
+
 	return &cfg, nil
 }
 
@@ -65,7 +76,7 @@ func (c *Config) GetExludeMap(fullFiles []string) map[string]bool {
 		resp[path] = true
 	}
 
-	for _, path := range c.ExcludeFiles {
+	for _, path := range c.Static.ExcludeFiles {
 		resp[path] = false
 	}
 

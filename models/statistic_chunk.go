@@ -9,16 +9,16 @@ type StatisticChunk struct {
 	RequestPath string    `json:"request_path"`
 	IP          string    `json:"ip"`
 	Timestamp   time.Time `json:"timestamp"`
-	Commpressed bool      `json:"commpressed"`
+	Protocol    string    `json:"protocol"`
 	Status      string    `json:"status"`
 }
 
-func NewStatisticChunk(r *http.Request, commpressed bool, status string) *StatisticChunk {
+func NewStatisticChunk(r *http.Request,status string) *StatisticChunk {
 	return &StatisticChunk{
-		RequestPath: r.URL.Path,
-		IP: r.RemoteAddr,
-		Timestamp: time.Now(),
-		Commpressed: commpressed,
-		Status: status,
+		RequestPath: r.URL.String(),
+		IP:          r.RemoteAddr,
+		Protocol:    r.Proto,
+		Timestamp:   time.Now(),
+		Status:      status,
 	}
 }

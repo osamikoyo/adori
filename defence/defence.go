@@ -2,6 +2,7 @@ package defence
 
 import (
 	"net/http"
+	"strings"
 	"sync"
 
 	"github.com/osamikoyo/adori/logger"
@@ -16,7 +17,8 @@ type Defence struct {
 	mutex sync.RWMutex
 
 	suspiciousIp []string
-	IPtable      map[string]uint
+	badPathParts []string
+	iptable      map[string]uint
 	logger       *logger.Logger
 }
 
@@ -30,8 +32,25 @@ func in(elem string, arr []string) bool {
 	return false
 }
 
+func (d *Defence) haveBadRequestPath(r *http.Request) bool {
+	path := r.URL.Path
+
+	parts := strings.Split(path, "/")
+	for _, part := range parts {
+		if in(part, d.badPathParts) {
+			return true
+		}
+	}
+
+	return false
+}
+
 func (d *Defence) CheckRequestOK(r *http.Request) bool {
 	ip := r.RemoteAddr
+
+	if d.haveBadRequestPath(r) {
+		return false
+	}
 
 	if in(ip, d.suspiciousIp) {
 		d.logger.Info("request from suspicious ip list",
@@ -44,9 +63,9 @@ func (d *Defence) CheckRequestOK(r *http.Request) bool {
 	d.mutex.Lock()
 	defer d.mutex.Unlock()
 
-	d.IPtable[ip]++
+	d.iptable[ip]++
 
-	if d.IPtable[ip] <= RequestFromOneIpInSecond {
+	if d.iptable[ip] <= RequestFromOneIpInSecond {
 		d.logger.Error("request from ok url",
 			zap.String("ip", ip),
 			zap.String("addr", r.RequestURI))

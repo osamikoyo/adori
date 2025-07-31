@@ -11,7 +11,7 @@ import (
 )
 
 type StatisticWriter struct {
-	input chan models.StatisticChunk
+	input chan *models.StatisticChunk
 
 	file   *os.File
 	logger *logger.Logger
@@ -20,7 +20,7 @@ type StatisticWriter struct {
 func NewStatisticWriter(
 	filepath string,
 	logger *logger.Logger,
-	input chan models.StatisticChunk,
+	input chan *models.StatisticChunk,
 ) (*StatisticWriter, error) {
 	file, err := os.OpenFile(filepath, os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0o644)
 	if err != nil {

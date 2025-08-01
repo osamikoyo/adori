@@ -6,6 +6,7 @@ import (
 
 	"go.uber.org/zap"
 	"go.uber.org/zap/zapcore"
+	"gopkg.in/natefinch/lumberjack.v2"
 )
 
 type Logger struct {
@@ -48,9 +49,12 @@ func newLogger(cfg Config) (*Logger, error) {
 	cores = append(cores, stdoutCore)
 
 	if cfg.LogFile != "" {
-		logFile, err := os.OpenFile(cfg.LogFile, os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0o644)
-		if err != nil {
-			return nil, err
+		logFile := &lumberjack.Logger{
+			Filename:   cfg.LogFile,
+    		MaxSize:    500, // megabytes
+    		MaxBackups: 3,
+    		MaxAge:     28, //days
+    		Compress:   true, // disabled by default
 		}
 
 		fileCore := zapcore.NewCore(

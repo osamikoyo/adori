@@ -3,60 +3,44 @@ package gateway
 import (
 	"context"
 	"net/http"
-	"net/http/httputil"
-	"net/url"
 
+	"github.com/osamikoyo/adori/config"
+	"github.com/osamikoyo/adori/core"
 	"github.com/osamikoyo/adori/logger"
+	"github.com/osamikoyo/adori/proxy"
 	"go.uber.org/zap"
 )
 
 type GatewayServer struct {
 	httpserver *http.Server
-	proxyTable map[string]*url.URL
 	logger     *logger.Logger
 }
 
 func NewGatewayServer(
-	addr string,
-	urltable map[string]string,
+	cfg *config.Config,
 	logger *logger.Logger,
-) *GatewayServer {
-	table := make(map[string]*url.URL)
+	core *core.AdoriCore,
+) (*GatewayServer, error) {
+	proxy, err := proxy.NewProxy(cfg)
+	if err != nil{
+		logger.Fatal("failed get proxy server", zap.Error(err))
 
-	mux := http.NewServeMux()
-
-	for prefix, path := range urltable {
-		u, err := url.Parse(path)
-		if err != nil {
-			logger.Warn("failed parse url",
-				zap.String("prefix", prefix),
-				zap.String("url", path),
-				zap.Error(err))
-			
-			continue
-		}
-
-		proxyHandler := httputil.NewSingleHostReverseProxy(u)
-
-		mux.HandleFunc(prefix, func(w http.ResponseWriter, r *http.Request) {
-			proxyHandler.ServeHTTP(w, r)
-		})
+		return nil, err
 	}
 
 	return &GatewayServer{
 		httpserver: &http.Server{
-			Addr: addr,
-			Handler: mux,
+			Addr: cfg.Addr,
+			Handler: core.CoreMiddlewareForHandlerFunc(proxy.ServeHTTP),
 		},
-		proxyTable: table,
 		logger: logger,
-	}
+	}, nil
 }
 
 func (g *GatewayServer) Run(ctx context.Context) error {
 	return g.httpserver.ListenAndServe()
 }
 
-func (g *GatewayServer) Close() error {
+func (g *GatewayServer) Stop() error {
 	return g.httpserver.Close()
 }

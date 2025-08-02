@@ -46,6 +46,19 @@ func (ac *AdoriCore) CoreMiddlewareForHandlerFunc(handler http.HandlerFunc) http
 			return
 		}
 
+		path := r.URL.Path
+
+		cash, err := ac.cash.Get(path)
+		if err == nil{
+			w.Header().Set("Content-Type", http.DetectContentType([]byte(cash.Content)))
+
+			w.Write([]byte(cash.Content))
+			
+			status = "ok (cashed)"
+
+			return 
+		}
+
 		status = "ok"
 
 		ac.logger.Info("new good request", zap.String("path", r.URL.Path))
@@ -67,6 +80,20 @@ func (ac *AdoriCore) CoreMiddlewareForHandler(handler http.Handler) http.Handler
 
 			return
 		}
+
+		path := r.URL.Path
+
+		cash, err := ac.cash.Get(path)
+		if err == nil{
+			w.Header().Set("Content-Type", http.DetectContentType([]byte(cash.Content)))
+
+			w.Write([]byte(cash.Content))
+
+			status = "ok (cashed)"
+
+			return 
+		}
+
 
 		status = "ok"
 

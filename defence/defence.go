@@ -5,6 +5,7 @@ import (
 	"strings"
 	"sync"
 
+	"github.com/osamikoyo/adori/config"
 	"github.com/osamikoyo/adori/logger"
 	"go.uber.org/zap"
 )
@@ -20,6 +21,14 @@ type Defence struct {
 	badPathParts []string
 	iptable      map[string]uint
 	logger       *logger.Logger
+}
+
+func NewDefence(cfg *config.Config, logger *logger.Logger) *Defence {
+	return &Defence{
+		suspiciousIp: cfg.Defence.BlackList,
+		badPathParts: cfg.Defence.BadRequestParts,
+		iptable: make(map[string]uint),
+	}
 }
 
 func in(elem string, arr []string) bool {
@@ -61,10 +70,11 @@ func (d *Defence) CheckRequestOK(r *http.Request) bool {
 	}
 
 	d.mutex.Lock()
-	defer d.mutex.Unlock()
-
 	d.iptable[ip]++
+	d.mutex.Unlock()
 
+	d.mutex.RLock()
+	defer d.mutex.RUnlock()
 	if d.iptable[ip] <= RequestFromOneIpInSecond {
 		d.logger.Error("request from ok url",
 			zap.String("ip", ip),

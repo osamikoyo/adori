@@ -10,6 +10,7 @@ var ConfigfileNames = []string{"yadori.yml", "yadorin.yaml", "yadori-config.yaml
 
 type (
 	ProxyElement struct {
+		Prefix     string `yaml:"prefix"`
 		SelfPath   string `yaml:"self_path"`
 		OutputAddr string `yaml:"output_addr"`
 	}
@@ -19,9 +20,15 @@ type (
 		Dir   string `yaml:"dir"`
 	}
 
+	Cash struct {
+		Use               bool `yaml:"use"`
+		IntervalInSeconds int  `yaml:"interval"`
+	}
+
 	Defence struct {
 		Use                 bool     `yaml:"use"`
 		MaxRequestFromOneIP uint     `yaml:"max_request_from_ip"`
+		BadRequestParts     []string `yaml:"bad_request_parts"`
 		BlackList           []string `yaml:"black_list"`
 	}
 
@@ -36,6 +43,8 @@ type (
 		ServiceName     string          `yaml:"service_name"`
 		Addr            string          `yaml:"addr"`
 		Regime          string          `yaml:"regime"`
+		Defence         Defence         `yaml:"defence"`
+		Cash            Cash            `yaml:"cash"`
 		Static          Static          `yaml:"static"`
 		StatisticConfig StatisticConfig `yaml:"statistic"`
 		ApiGateway      []ProxyElement  `yaml:"api_gateway"`

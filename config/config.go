@@ -6,8 +6,6 @@ import (
 	"gopkg.in/yaml.v3"
 )
 
-var ConfigfileNames = []string{"yadori.yml", "yadorin.yaml", "yadori-config.yaml", "yadori-config.yml"}
-
 type (
 	ProxyElement struct {
 		Prefix     string `yaml:"prefix"`
@@ -33,7 +31,6 @@ type (
 	}
 
 	Static struct {
-		StatisServer bool     `yaml:"static_server"`
 		Dir          string   `yaml:"dir"`
 		Prefix       string   `yaml:"prefix"`
 		ExcludeFiles []string `yaml:"exclude_files"`
@@ -43,6 +40,7 @@ type (
 		ServiceName     string          `yaml:"service_name"`
 		Addr            string          `yaml:"addr"`
 		Regime          string          `yaml:"regime"`
+		Production      bool            `yaml:"production"`
 		Defence         Defence         `yaml:"defence"`
 		Cash            Cash            `yaml:"cash"`
 		Static          Static          `yaml:"static"`
@@ -51,13 +49,13 @@ type (
 	}
 )
 
-func NewConfig() (*Config, error) {
+func NewConfig(paths ...string) (*Config, error) {
 	var (
 		file *os.File
 		err  error
 	)
 
-	for _, path := range ConfigfileNames {
+	for _, path := range paths {
 		file, err = os.Open(path)
 		if err != nil {
 			continue

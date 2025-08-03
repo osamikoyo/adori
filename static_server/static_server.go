@@ -1,21 +1,19 @@
 package staticserver
 
 import (
+	"context"
 	"net/http"
 
 	"github.com/osamikoyo/adori/config"
 	"github.com/osamikoyo/adori/core"
-	"github.com/osamikoyo/adori/logger"
 )
 
 type StaticServer struct{
 	httpserver *http.Server
-	logger *logger.Logger
 }
 
 func NewStaticServer(
 	cfg *config.Config,
-	logger *logger.Logger,
 	core *core.AdoriCore,
 ) *StaticServer {
 	fs := http.FileServer(http.Dir(cfg.Static.Dir))
@@ -30,7 +28,14 @@ func NewStaticServer(
 	}
 
 	return &StaticServer{
-		logger: logger,
 		httpserver: server,
 	}
+}
+
+func (s *StaticServer) Run(ctx context.Context) error {
+	return s.httpserver.ListenAndServe()
+}
+
+func (s *StaticServer) Stop() error {
+	return s.httpserver.Close()
 }

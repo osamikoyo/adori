@@ -1,0 +1,47 @@
+service_name: "api-gateway-service"
+addr: ":8080" 
+regime: "gateway"
+production: false
+
+defence:
+  use: true 
+  max_request_from_ip: 1000 
+  bad_request_parts:
+    - "../"
+    - "/etc/passwd"
+    - "<?php"
+  black_list: 
+    - "192.168.1.100"
+    - "10.0.0.5"
+
+cash:
+  use: true 
+  interval: 300 
+
+static:
+  dir: "./static"
+  prefix: "/static"
+  exclude_files: 
+    - "*.tmp"
+    - "*.log"
+
+statistic:
+  write: true 
+  dir: "./stats"
+
+api_gateway:
+  - prefix: "/api/v1/users"
+    self_path: "users-service"
+    output_addr: "http://users-service:8000"
+
+  - prefix: "/api/v1/products"
+    self_path: "products-service"
+    output_addr: "http://products-service:8001"
+
+  - prefix: "/api/v1/orders"
+    self_path: "orders-service"
+    output_addr: "http://orders-service:8002"
+
+  - prefix: "/" 
+    self_path: "default-service"
+    output_addr: "http://default-service:8080"

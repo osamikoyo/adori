@@ -73,6 +73,10 @@ func (p *Proxy) initProxyDirector(proxy *httputil.ReverseProxy, targetHost strin
 
 func (p *Proxy) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	path := r.URL.Path
+
+	if path == "/ok" {
+		w.Write([]byte("ok"))
+	}
 	
 	var matchedPrefix string
 	for prefix := range p.prefixToIps {

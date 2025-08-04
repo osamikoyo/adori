@@ -55,6 +55,8 @@ func (d *Defence) haveBadRequestPath(r *http.Request) bool {
 }
 
 func (d *Defence) CheckRequestOK(r *http.Request) bool {
+	d.logger.Info("new request on check", zap.String("addr", r.RemoteAddr))
+	
 	ip := r.RemoteAddr
 
 	if d.haveBadRequestPath(r) {

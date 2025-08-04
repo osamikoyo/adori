@@ -8,3 +8,7 @@ tasks:
     cmds:
       - task build
       - ./bin/adori --config example_config.yaml
+  install:
+    cmds:
+      - task build
+      - mv bin/adori ~/go/bin
